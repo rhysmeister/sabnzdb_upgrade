@@ -1,0 +1,40 @@
+---
+- hosts: all
+  vars:
+    packages:
+      - python-pip
+  remote_user: pi
+  tasks:
+
+  - name: Add the stable sabnzbd PPA repository
+    apt_repository:
+      repo: ppa:jcfp/nobetas
+      state: present
+      update_cache: yes
+
+  - name: Add the sabnzbd addons PPA repository
+    apt_repository:
+      repo: ppa:jcfp/sab-addons
+      state: present
+      update_cache: yes
+
+  - name: Ensure required packages are installed
+    apt:
+      name: "{{ packages }}"
+
+  - name: Install the latest stable version of sabnzbd
+    apt:
+      name: sabnzbdplus
+      state: latest
+    notify: Restart sabnzbdplus
+
+  - name: Install sabyenc
+    pip:
+      name: sabyenc
+
+  handlers:
+
+  - name: Restart sabnzbdplus
+    service:
+      name: sabnzbdplus
+      state: restarted
